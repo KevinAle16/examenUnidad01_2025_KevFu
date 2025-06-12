@@ -3,7 +3,7 @@
 
         <string name="user">admin</string>
         <string name="pass">1234</string>
-        <string name="banco">Banorte</string>
+        <string name="banco">Ingrese el banco</string>
         <string name="domicilio">av del sol 34</string>
         <string name="ingresar">Ingresar</string>
         <string name="regresar">Regresar</string>

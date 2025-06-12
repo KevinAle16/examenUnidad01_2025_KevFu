@@ -2,6 +2,7 @@ package com.example.examenmovilc1
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -69,6 +70,7 @@ class CuentaBancoActivity : AppCompatActivity() {
         val usuario = intent.getStringExtra("usuario")
         lblNombre.text = getString(R.string.usuario_conectado, usuario)
     }
+    @SuppressLint("DefaultLocale")
     private fun eventosClic() {
         btnRegistrar.setOnClickListener {
             if (txtNumCuenta.text.isEmpty() || txtNombre.text.isEmpty() || txtBanco.text.isEmpty() || txtSaldo.text.isEmpty()) {
@@ -82,79 +84,61 @@ class CuentaBancoActivity : AppCompatActivity() {
                 cuentaRegistrada = true
                 btnAplicar.isEnabled = true
 
+
                 Toast.makeText(this, getString(R.string.msg_cuenta_registrada), Toast.LENGTH_SHORT)
                     .show()
             }
         }
 
-        btnAplicar.setOnClickListener {
+        btnAplicar.setOnClickListener (View.OnClickListener{
             if (!cuentaRegistrada) {
-                Toast.makeText(this, getString(R.string.msg_registra_cuenta), Toast.LENGTH_SHORT)
-                    .show()
-                return@setOnClickListener
-            }
+                Toast.makeText(this, getString(R.string.msg_registra_cuenta), Toast.LENGTH_SHORT).show()
 
-            if (txtCantidad.text.isEmpty()) {
-                Toast.makeText(this, getString(R.string.msg_captura_cantidad), Toast.LENGTH_SHORT)
-                    .show()
-                return@setOnClickListener
-            }
-
-            val cantidad = txtCantidad.text.toString().toFloat()
-            if (cantidad <= 0f) {
-                Toast.makeText(this, getString(R.string.msg_mayor_cero), Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
             }
 
             when {
-                rdbDeposito.isChecked -> {
-                    cuenta.hacerDeposito(cantidad)
-                    Toast.makeText(this, getString(R.string.msg_deposito_exito), Toast.LENGTH_SHORT)
-                        .show()
-                }
+                rdbDeposito.isChecked || rdbRetiro.isChecked -> {
+                    if (txtCantidad.text.isEmpty()) {
+                        Toast.makeText(this, getString(R.string.msg_captura_cantidad), Toast.LENGTH_SHORT).show()
 
-                rdbRetiro.isChecked -> {
-                    if (!cuenta.retirarDinero(cantidad)) {
-                        Toast.makeText(
-                            this,
-                            getString(R.string.msg_saldo_insuficiente),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        return@setOnClickListener
-                    } else {
-                        Toast.makeText(
-                            this,
-                            getString(R.string.msg_retiro_exito),
-                            Toast.LENGTH_SHORT
-                        ).show()
+                    }
+
+                    val cantidad = txtCantidad.text.toString().toFloat()
+                    if (cantidad <= 0f) {
+                        Toast.makeText(this, getString(R.string.msg_mayor_cero), Toast.LENGTH_SHORT).show()
+
+                    }
+
+                    if (rdbDeposito.isChecked) {
+                        cuenta.hacerDeposito(cantidad)
+                        Toast.makeText(this, getString(R.string.msg_deposito_exito), Toast.LENGTH_SHORT).show()
+                    } else if (rdbRetiro.isChecked) {
+                        if (!cuenta.retirarDinero(cantidad)) {
+                            Toast.makeText(this, getString(R.string.msg_saldo_insuficiente), Toast.LENGTH_SHORT).show()
+
+                        } else {
+                            Toast.makeText(this, getString(R.string.msg_retiro_exito), Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
 
                 rdbConsulta.isChecked -> {
-                    Toast.makeText(
-                        this,
-                        getString(
-                            R.string.msg_saldo_actual,
-                            String.format("%.2f", cuenta.consultarSaldo())
-                        ),
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(this, getString(R.string.msg_saldo_actual, String.format("%.2f", cuenta.consultarSaldo())), Toast.LENGTH_SHORT).show()
                 }
 
                 else -> {
-                    Toast.makeText(
-                        this,
-                        getString(R.string.msg_selecciona_movimiento),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    return@setOnClickListener
+                    Toast.makeText(this, getString(R.string.msg_selecciona_movimiento), Toast.LENGTH_SHORT).show()
+
                 }
             }
 
-            txtSaldo.setText(String.format("%.2f", cuenta.obtenerSaldo()))
-            txtSaldoActual.text =
-                getString(R.string.msg_saldo_actual, String.format("%.2f", cuenta.obtenerSaldo()))
-        }
+            txtSaldoActual.text = getString(
+                R.string.msg_saldo_actual,
+                String.format("%.2f", cuenta.obtenerSaldo())
+            )
+            txtCantidad.setText("")
 
+
+    })
     }
 }
